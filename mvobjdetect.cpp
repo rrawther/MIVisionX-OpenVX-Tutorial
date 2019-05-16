@@ -307,7 +307,8 @@ int main(int argc, const char ** argv)
         Mat *inp_img_mat = nullptr;
         if (!do_preprocess) {
     #if ENABLE_OPENCV
-            if(inp_dims[2] == 3 && inpFileName.size() > 4 && (inpFileName.substr(inpFileName.size()-4, 4) == ".png" || inpFileName.substr(inpFileName.size()-4, 4) == ".jpg"))
+            if(inp_dims[2] == 3 && inpFileName.size() > 4 && (inpFileName.substr(inpFileName.size()-4, 4) == ".png" || inpFileName.substr(inpFileName.size()-4, 4) == ".jpg"
+                                                             || inpFileName.substr(inpFileName.size()-4, 4) == ".PNG" || inpFileName.substr(inpFileName.size()-4, 4) == ".JPG"))
             {
                 for(size_t n = 0; n < inp_dims[3]; n++) {
                     char imgFileName[1024];
