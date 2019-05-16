@@ -16,11 +16,12 @@ For the second part of exercise, I will be showing how to run the object detecti
 	* MIVisionX installs model compiler at `/opt/rocm/mivisionx`
   * mv_compile installs at at `/opt/rocm/mivisionx/bin` and mvdeploy_api.h installs at `/opt/rocm/mivisionx/include` 
 
+### Step 1. Clone this repository into local system
 
-### Step 1. download pretrained Caffe model from the following link
+### Step 2. download pretrained Caffe model from the following link
 [yoloV2Tiny20.caffemodel](https://github.com/kiritigowda/YoloV2NCS/raw/master/models/caffemodels/yoloV2Tiny20.caffemodel)
 
-### Step 2. compile model for OPENCL-ROCm-OpenVX backend using mv_compile utility
+### Step 3. compile model for OPENCL-ROCm-OpenVX backend using mv_compile utility
 The mv_compile utility generates deployment library, header files, and .cpp files required to run inference for the specified model.
 ```
 mv_compile --model yoloV2Tiny20.caffemodel --install_folder example4 --input_dims 1,3,416,416
@@ -29,38 +30,39 @@ There will be a file libmv_deploy.so (under ./lib), weights.bin and mvtestdeploy
 Also there will be mv_extras folder for extra post-processing helper functions.
 Open mvdeploy_api.h to go through API functions supported for inference deployment. 
 
-### Step 3. Make sure mvtestdeploy utility runs
+### Step 4. Make sure mvtestdeploy utility runs
 mvtestdeploy is a pregenerated application built during Step 2 which show how to deploy inference for an input image file
 ```	
 cd exercise4
 ./bin/mvtestdeploy <inputdatafile> <output.bin> --install_folder . -t N
 This runs inference for an input file and generate output for N number of iterations and generates output
 ```
-### Step 4. Build mv_objdetect example
+### Step 5. Build mv_objdetect example
 mv_objectdetect is supposed to build on top of all the files generated in step 3. Basically it shows how to add preprocessing OpenVX nodes for video decoding and image_to_tensor conversion. 
 Go through mv_objdetect.cpp file. This exercise uses a single or multiple video streams for input. 
 The second part of the sample will show how to run it through multiple video files.
 
 ```
-copy all files in sample (mv_objdetect.spp, visualize.cpp, visualize.h and CMakeLists.txt) into exercise4 folder everything is there to build and run the sample
-cp ../*.cpp .
-cp ../*.h .
-cp ../CMakeLists.txt .
+copy all files in clones sample folder (mvobjdetect.spp, visualize.cpp, visualize.h and CMakeLists.txt) into exercise4 folder everything is there to build and run the sample
+cp mvobjdetect.cpp visualize.cpp .
+cp visualize.h .
+cp CMakeLists.txt .
 ```
 
-### Step 4. cmake and make mvobjdetect
+### Step 6. cmake and make mvobjdetect
 ```
 mkdir build && cd build && cmake -DUSE_POSTPROC=ON ../
 make -j
 ```
+Note: if build directory exists from previous build, please remove it before creating again
 
-### Step 5. Run object detection with video/image
+### Step 7. Run object detection with video/image
 
 ```
-./build/mv_objdetect ../data/img.jpg - --install_folder . --bb 20 0.2 0.4 --v
-./build/mv_objdetect ../data/test.mp4 - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+./build/mvobjdetect ../data/img.jpg - --install_folder . --bb 20 0.2 0.4 --v
+./build/mvobjdetect ../data/test.mp4 - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
-### Step 6. Run object detection with multiple video streams
+### Step 8. Run object detection with multiple video streams
 Go thorugh steps 2 to 5, this time compiing the model for a batch of 4
 
 ```
@@ -74,7 +76,7 @@ make -j
 
 ./build/mv_objdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
-### Step 5. Sample output for multiple video object detection
+### Step 9. Sample output for multiple video object detection
 <p align="center"><img width="80%" src="images/Video_4_screenshot.png" /></p>
 
 # License
