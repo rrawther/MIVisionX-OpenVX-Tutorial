@@ -23,7 +23,7 @@ For the second part of exercise, I will be showing how to run the object detecti
 ### Step 2. compile model for OPENCL-ROCm-OpenVX backend using mv_compile utility
 The mv_compile utility generates deployment library, header files, and .cpp files required to run inference for the specified model.
 ```
-mv_compile.exe --model yoloV2Tiny20.caffemodel --install_folder example4 --input_dims 1,3,416,416
+mv_compile --model yoloV2Tiny20.caffemodel --install_folder example4 --input_dims 1,3,416,416
 ```
 There will be a file libmv_deploy.so (under ./lib), weights.bin and mvtestdeploy sample app (under ./bin).
 Also there will be mv_extras folder for extra post-processing helper functions.
@@ -74,6 +74,8 @@ make -j
 
 ./build/mv_objdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
+### Step 5. Sample output for multiple video object detection
+<p align="center"><img width="80%" src="images/Video_4_screenshot.png" /></p>
 
 # License
 This project is licensed under the MIT License - see the LICENSE.md file for details
