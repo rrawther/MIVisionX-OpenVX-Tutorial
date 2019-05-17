@@ -18,8 +18,7 @@ For the second part of exercise, I will be showing how to run the object detecti
 
 ### Step 1. Clone this repository into local system
 
-### Step 2. download pretrained Caffe model from the following link
-[yoloV2Tiny20.caffemodel](https://github.com/kiritigowda/YoloV2NCS/raw/master/models/caffemodels/yoloV2Tiny20.caffemodel)
+### Step 2. Download pre-trained YoloV2 caffe model - [yoloV2Tiny20.caffemodel](https://github.com/kiritigowda/YoloV2NCS/raw/master/models/caffemodels/yoloV2Tiny20.caffemodel)
 
 ### Step 3. compile model for OPENCL-ROCm-OpenVX backend using mv_compile utility
 The mv_compile utility generates deployment library, header files, and .cpp files required to run inference for the specified model.
@@ -31,14 +30,14 @@ Also there will be mv_extras folder for extra post-processing helper functions.
 Open mvdeploy_api.h to go through API functions supported for inference deployment. 
 
 ### Step 4. Make sure mvtestdeploy utility runs
-mvtestdeploy is a pregenerated application built during Step 2 which show how to deploy inference for an input image file
+mvtestdeploy is a pregenerated application built during Step 2 which shows how to deploy inference for an input image file
 ```	
-cd exercise4
-./bin/mvtestdeploy <inputdatafile> <output.bin> --install_folder . -t N
-This runs inference for an input file and generate output for N number of iterations and generates output
+cd example4
+./bin/mvtestdeploy <inputdatafile> <output.bin> --install_folder . --t N
+This runs inference for an input file and generate output for N number of iterations.
 ```
 ### Step 5. Build mv_objdetect example
-mv_objectdetect is supposed to build on top of all the files generated in step 3. Basically it shows how to add preprocessing OpenVX nodes for video decoding and image_to_tensor conversion. 
+mv_objdetect is supposed to build on top of all the files generated in step 3. Basically it shows how to add preprocessing OpenVX nodes for video decoding and image_to_tensor conversion. 
 Go through mv_objdetect.cpp file. This exercise uses a single or multiple video streams for input. 
 The second part of the sample will show how to run it through multiple video files.
 
