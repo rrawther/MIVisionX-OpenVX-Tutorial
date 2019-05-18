@@ -77,23 +77,22 @@ static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session in
     }
 }
 
-void printUsage() {
+void printUsage() {         		
     printf("Usage: mvobjdetect <options>\n"
-        "   <input-data-file>: : is filename(s) to initialize input tensor\n"
+        "\t<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor\t\t[required]\n"
 #if ENABLE_OPENCV
-        "   .jpg or .png: decode and copy to raw_data file or .mp4 or .m4v for video input\n"
-#endif
-         "   other: initialize tensor with raw data from the file\n"
-         "   <output-data-file/- > for video all frames will be output to single file OR - for no output \n"
-        "   --install_folder <install_folder> : the location for compiled model\n"
-        "   --backend <backend>: optional (default:OpenVX_Rocm_OpenCL) is the name of the backend for compilation\n"
-        "   --frames <#num/eof> : num of frames to process inference for cases like video\n"
-        "   --argmax <topK> : give argmax output in vec<label,prob>\n"
-        "   --t <num of interations> to run for performance\n"
-        "   --vaapi :use vaapi for decoding\n"
-        "   --label <labels.txt> to run for performance\n"
-        "   --bb <nc thres_c thres_nms> bounding box detection parameters\n"
-        "   --v <optional (if specified visualize the result on the input image)\n"
+        "\t.jpg or .png: decode and copy to raw_data file or .mp4 or .m4v for video input\t\t[required]\n"
+#endif       
+        "\t<output-data-file/- >: for video all frames will be output to single file OR '-'for no output\t\t[required]\n"
+        "\t--install_folder <install_folder> : the location for compiled model\t\t[required]\n"
+        "\t--bb <channels, threshold_c threshold_nms> bounding box detection parameters\t\t[required]\n"
+        "\t--frames <#num/eof> : num of frames to process inference for cases like video\t\t[required for video]\n"
+        "\t--backend <backend>: is the name of the backend for compilation\t\t[optional: defualt - OpenVX_Rocm_OpenCL]\n"
+        "\t--argmax <topK> : give argmax output in vec<label,prob>\t\t[optional]\n"
+        "\t--t <num of interations> to run for performance\t\t[optional]\n"
+        "\t--vaapi :use vaapi for decoding\t\t\t[optional]\n"
+        "\t--label <labels.txt>:\t\t[optional]\n"
+        "\t--v : if specified visualize the result on the input image\t[optional]\n"
     );
 }
 
