@@ -39,7 +39,7 @@ mvcompile    --model 	        <model_name: name of the trained model with path> 
 * Sample:
 ```
 cd MIVisionX-OpenVX-Tutorial
-mv_compile --model yoloV2Tiny20.caffemodel --install_folder example4 --input_dims 1,3,416,416
+mv_compile --model FULL_PATH_TO/yoloV2Tiny20.caffemodel --install_folder example4 --input_dims 1,3,416,416
 ```
 There will be a file libmv_deploy.so (under ./lib), weights.bin and mvtestdeploy sample app (under ./bin).
 Also there will be mv_extras folder for extra post-processing helper functions.
@@ -106,13 +106,15 @@ mvobjdetect	<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initial
 
 * Sample
 ```
-./build/mvobjdetect ../data/img_04.JPG - --install_folder . --bb 20 0.2 0.4 --v
-./build/mvobjdetect ../data/amd_video_01.mp4 - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+cd ..
+./mv_build/mvobjdetect ../data/img_04.JPG - --install_folder . --bb 20 0.2 0.4 --v
+./mv_build/mvobjdetect ../data/amd_video_01.mp4 - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
 ### Step 8. Run object detection with multiple video streams
 Go thorugh steps 2 to 5, this time compiing the model for a batch of 4
 
 ```
+cd ..
 mv_compile --model yoloV2Tiny20.caffemodel --install_folder example4_batch4 --input_dims 4,3,416,416
 cd example4_batch4
 cp ../mvobjdetect.cpp ../visualize.cpp .
@@ -122,8 +124,8 @@ mkdir mv_build_batch4
 cd mv_build_batch4
 cmake -DUSE_POSTPROC=ON ../
 make -j
-
-./build/mvobjdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+cd ..
+./mv_build_batch4/mvobjdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
 ### Step 9. Sample output for multiple video object detection
 <p align="center"><img width="80%" src="images/Video_4_screenshot.png" /></p>
