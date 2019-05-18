@@ -113,7 +113,7 @@ mvobjdetect	<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initial
 Go thorugh steps 2 to 5, this time compiing the model for a batch of 4
 
 ```
-mv_compile.exe --model yoloV2Tiny20.caffemodel --install_folder example4_batch4 --input_dims 4,3,416,416
+mv_compile --model yoloV2Tiny20.caffemodel --install_folder example4_batch4 --input_dims 4,3,416,416
 cd example4_batch4
 cp ../mvobjdetect.cpp ../visualize.cpp .
 cp ../visualize.h .
