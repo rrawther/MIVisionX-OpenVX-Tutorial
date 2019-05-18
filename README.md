@@ -123,7 +123,7 @@ cd mv_build_batch4
 cmake -DUSE_POSTPROC=ON ../
 make -j
 
-./build/mv_objdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+./build/mvobjdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
 ```
 ### Step 9. Sample output for multiple video object detection
 <p align="center"><img width="80%" src="images/Video_4_screenshot.png" /></p>
