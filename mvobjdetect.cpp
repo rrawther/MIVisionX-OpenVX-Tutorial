@@ -79,17 +79,17 @@ static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session in
 
 void printUsage() {
     printf("Usage: mvobjdetect <options>\n"
-        "\t<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor\t[required]\n"
+        "\t<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor         \t[required]\n"
         "\t<output-data-file/- >: for video all frames will be output to single file OR '-'for no output\t[required]\n"
-        "\t--install_folder <install_folder> : the location for compiled model\t\t[required]\n"
-        "\t--bb <channels, threshold_c threshold_nms> bounding box detection parameters\t\t[required]\n"
-        "\t--frames <#num/eof> : num of frames to process inference for video input\t\t[optional: default till eof]\n"
-        "\t--backend <backend>: is the name of the backend for compilation\t\t[optional: defualt - OpenVX_Rocm_OpenCL]\n"
-        "\t--argmax <topK> : give argmax output in vec<label,prob>\t\t[optional]\n"
-        "\t--t <num of interations> to run for performance\t\t[optional: default 1]\n"
-        "\t--hwdec :use hwaccel for decoding video\t\t\t[optional: default cpu decoding]\n"
-        "\t--label <labels.txt>:\t\t[optional: default use yolo_v2 20 classes]\n"
-        "\t--v :if specified visualize the result on the input image\t[optional: default no visualization]\n");
+        "\t--install_folder <install_folder> : the location for compiled module                         \t[required]\n"
+        "\t--bb <channels, threshold_c threshold_nms> bounding box detection parameters                 \t[required]\n"
+        "\t--frames <#num/eof> : num of frames to process inference         \t[optional: default till eof]\n"
+        "\t--backend <backend>: is the name of the backend for compilation  \t[optional: default OpenVX_Rocm_OpenCL]\n"
+        "\t--argmax <topK> : give argmax output in vec<label,prob>          \t[optional: default no argmax]\n"
+        "\t--t <num of interations> to run for performance                  \t[optional: default 1]\n"
+        "\t--hwdec :use hwaccel for decoding                                \t[optional: default cpu decoding]\n"
+        "\t--label <labels.txt>                                             \t[optional: default use yolo_v2 20 classes]\n"
+        "\t--v :if specified visualize the result on the input image        \t[optional: default no visualization]\n");
 }
 
 
