@@ -33,7 +33,7 @@ mv_compile   --model 	        <model_name: name of the trained model with path> 
 	     --input_dims 	<input_dims: n,c,h,w - batch size, channels, height, width> 	[required]
 	     --backend 	        <backend: name of the backend for compilation> 	  		[optional - default:OpenVX_Rocm_OpenCL]
 	     --fuse_cba 	<fuse_cba: enable or disable Convolution_bias_activation fuse mode (0/1)> [optional - default: 0]
-	     --quant_mode       <quant_mode: fp32/fp16/int8 - quantization_mode for the model: if enabled the model and weights would be converted [optional -defualt: fp32]
+	     --quant_mode       <quant_mode: fp32/fp16 - quantization_mode for the model: if enabled the model and weights would be converted [optional -default: fp32]
 ```
 
 * Sample:
