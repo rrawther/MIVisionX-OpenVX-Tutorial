@@ -77,23 +77,19 @@ static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session in
     }
 }
 
-void printUsage() {         		
+void printUsage() {
     printf("Usage: mvobjdetect <options>\n"
-        "\t<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor\t\t[required]\n"
-#if ENABLE_OPENCV
-        "\t.jpg or .png: decode and copy to raw_data file or .mp4 or .m4v for video input\t\t[required]\n"
-#endif       
-        "\t<output-data-file/- >: for video all frames will be output to single file OR '-'for no output\t\t[required]\n"
+        "\t<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor\t[required]\n"
+        "\t<output-data-file/- >: for video all frames will be output to single file OR '-'for no output\t[required]\n"
         "\t--install_folder <install_folder> : the location for compiled model\t\t[required]\n"
         "\t--bb <channels, threshold_c threshold_nms> bounding box detection parameters\t\t[required]\n"
-        "\t--frames <#num/eof> : num of frames to process inference for cases like video\t\t[required for video]\n"
+        "\t--frames <#num/eof> : num of frames to process inference for video input\t\t[optional: default till eof]\n"
         "\t--backend <backend>: is the name of the backend for compilation\t\t[optional: defualt - OpenVX_Rocm_OpenCL]\n"
         "\t--argmax <topK> : give argmax output in vec<label,prob>\t\t[optional]\n"
-        "\t--t <num of interations> to run for performance\t\t[optional]\n"
-        "\t--vaapi :use vaapi for decoding\t\t\t[optional]\n"
-        "\t--label <labels.txt>:\t\t[optional]\n"
-        "\t--v : if specified visualize the result on the input image\t[optional]\n"
-    );
+        "\t--t <num of interations> to run for performance\t\t[optional: default 1]\n"
+        "\t--hwdec :use hwaccel for decoding video\t\t\t[optional: default cpu decoding]\n"
+        "\t--label <labels.txt>:\t\t[optional: default use yolo_v2 20 classes]\n"
+        "\t--v :if specified visualize the result on the input image\t[optional: default no visualization]\n");
 }
 
 
@@ -112,7 +108,7 @@ int main(int argc, const char ** argv)
     std::string  weightsFile  = "./weights.bin";
     mivid_backend backend = OpenVX_Rocm_OpenCL;
     std::string inpFileName  = std::string(argv[1]);
-    std::string outFileName  = std::string(argv[2]);
+    std::string outFileName  = !strncmp(argv[2], "--", 2)? "-" : std::string(argv[2]);
     int bPeformanceRun = 0, numIterations = 0, bVisualize = 0, bVaapi = 0;
     int detectBB = 0;
     int  argmaxOutput = 0, topK = 1;
@@ -144,7 +140,7 @@ int main(int argc, const char ** argv)
             arg++;
             numIterations = atoi(argv[arg]);
         }        
-        if (!strcmp(argv[arg], "--vaapi")) {
+        if (!strcmp(argv[arg], "--hwdec")) {
             bVaapi = atoi(argv[arg]);
         }
 
@@ -268,6 +264,7 @@ int main(int argc, const char ** argv)
             std::string inp_dec_str = bVaapi? ("1," + inpFileName + ":1") : ("1," + inpFileName + ":0");
             SetPreProcessCallback(&preprocess_addnodes_callback_fn, inp_dec_str.c_str(), scale_factor, 0.0);
             do_preprocess = 1;
+            if (!useMultiFrameInput) capture_till_eof = 1;   // if frames parameter is not specified, capture till eof
             printf("OK:: SetPreProcessCallback \n");
         }
         else if (inp_dims[3] > 1 && inp_dims[2] == 3 && (((inpFileName.size() > 6) && (inpFileName.substr(inpFileName.size()-6, 4) == ".mp4")
@@ -494,7 +491,6 @@ int main(int argc, const char ** argv)
 
                     ERROR_CHECK_STATUS(vxUnmapImagePatch(inp_img, map_id));
                     pVisualize->show(img, detected_bb, inp_dims[3]);
-                    img.release();
                     if (cvWaitKey(1) >= 0)
                         break;
                 } else if (inp_img_mat){
