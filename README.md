@@ -83,7 +83,7 @@ cp ../CMakeLists.txt .
 ```
 mkdir mv_build
 cd mv_build
-cmake -DUSE_POSTPROC=ON ../
+cmake ../
 make -j
 ```
 Note: if build directory exists from previous build, name the new build directly differently (eg: mv_build).
@@ -91,24 +91,26 @@ Note: if build directory exists from previous build, name the new build directly
 ### Step 7. Run object detection with video/image
 * Usage:
 ```
-mvobjdetect	<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor 		[required]
-         	<output-data-file/- >: for video all frames will be output to single file OR '-'for no output  	[required]
-       		--install_folder <install_folder> : the location for compiled model				[required]
-        	--bb <channels, threshold_c threshold_nms> bounding box detection parameters			[required]
-		--frames <#num/eof> : num of frames to process inference for cases like video			[required for video]
-        	--backend <backend>: is the name of the backend for compilation					[optional: defualt - OpenVX_Rocm_OpenCL]
-        	--argmax <topK> : give argmax output in vec<label,prob>						[optional]
-        	--t <num of interations> to run for performance							[optional]
-		--vaapi :use vaapi for decoding									[optional]
-        	--label <labels.txt>:										[optional]
-		--v : if specified visualize the result on the input image					[optional]
+Usage: mvobjdetect <options>
+	<input-data-file: .jpg, .png, .mp4, .m4v>: is filename(s) to initialize input tensor         	[required]
+	<output-data-file/- >: for video all frames will be output to single file OR '-'for no output	[required]
+	--install_folder <install_folder> : the location for compiled module                         	[required]
+	--bb <channels, threshold_c threshold_nms> bounding box detection parameters                 	[required]
+	--frames <#num/eof> : num of frames to process inference         	[optional: default till eof]
+	--backend <backend>: is the name of the backend for compilation  	[optional: default OpenVX_Rocm_OpenCL]
+	--argmax <topK> : give argmax output in vec<label,prob>          	[optional: default no argmax]
+	--t <num of interations> to run for performance                  	[optional: default 1]
+	--hwdec :use hwaccel for decoding                                	[optional: default cpu decoding]
+	--label <labels.txt>                                             	[optional: default use yolo_v2 20 classes]
+	--v :if specified visualize the result on the input image        	[optional: default no visualization]
+
 ```
 
 * Sample
 ```
 cd ..
 ./mv_build/mvobjdetect ../data/img_04.JPG - --install_folder . --bb 20 0.2 0.4 --v
-./mv_build/mvobjdetect ../data/amd_video_01.mp4 - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+./mv_build/mvobjdetect ../data/amd_video_01.mp4 - --install_folder . --bb 20 0.2 0.4 --v
 ```
 ### Step 8. Run object detection with multiple video streams
 Go thorugh steps 2 to 5, this time compiing the model for a batch of 4
@@ -122,10 +124,10 @@ cp ../visualize.h .
 cp ../CMakeLists.txt .
 mkdir mv_build_batch4
 cd mv_build_batch4
-cmake -DUSE_POSTPROC=ON ../
+cmake ../
 make -j
 cd ..
-./mv_build_batch4/mvobjdetect ../data/Videos_4.txt - --install_folder . --frames 5000 --bb 20 0.2 0.4 --v
+./mv_build_batch4/mvobjdetect ../data/Videos_4.txt - --install_folder . --bb 20 0.2 0.4 --v
 ```
 ### Step 9. Sample output for multiple video object detection
 <p align="center"><img width="80%" src="images/Video_4_screenshot.png" /></p>
