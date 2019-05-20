@@ -28,7 +28,7 @@ The mv_compile utility generates deployment library, header files, and .cpp file
 
 * Usage:
 ```
-mvcompile    --model 	        <model_name: name of the trained model with path> 		[required]
+mv_compile   --model 	        <model_name: name of the trained model with path> 		[required]
 	     --install_folder   <install_folder:  the location for compiled model> 		[required]
 	     --input_dims 	<input_dims: n,c,h,w - batch size, channels, height, width> 	[required]
 	     --backend 	        <backend: name of the backend for compilation> 	  		[optional - default:OpenVX_Rocm_OpenCL]
