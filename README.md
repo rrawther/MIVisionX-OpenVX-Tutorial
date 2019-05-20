@@ -50,7 +50,7 @@ Also there will be mv_extras folder for extra post-processing helper functions.
 Open mvdeploy_api.h to go through API functions supported for inference deployment. 
 
 ### Step 4. Make sure mvtestdeploy utility runs
-mvtestdeploy is a pre-generated application built in Step 2 which shows how to deploy inference for an input image file
+mvtestdeploy is a pre-generated application built in Step 3 which shows how to deploy inference for an input image file
 
 * Usage:
 ```
@@ -68,7 +68,7 @@ cd mvdeploy
 This runs inference for an input file and generate output for N number of iterations.
 
 ### Step 5. Build mvobjdetect example
-* mvobjdetect is built on top of all the files generated in step 3. Basically it shows how to add preprocessing OpenVX nodes for video decoding and image_to_tensor conversion. 
+* mvobjdetect is built on top of all the files generated in Step 4. Basically it shows how to add preprocessing OpenVX nodes for video decoding and image_to_tensor conversion. 
 * Go through mvobjdetect.cpp file. 
 * This exercise uses a single or multiple video streams for input. 
 * The second part of the tutorial shows how to run it through multiple video files.
@@ -115,11 +115,11 @@ cd ..
 ./mv_build/mvobjdetect ../data/amd_video_01.mp4 - --install_folder . --bb 20 0.2 0.4 --v
 ```
 ### Step 8. Run object detection with multiple video streams
-Go thorugh steps 2 to 5, this time compiing the model for a batch of 4
+Go through steps 3 to 6, this time compiing the model for a batch of 4
 
 ```
 cd ..
-mv_compile --model yoloV2Tiny20.caffemodel --install_folder mvdeploy_batch4 --input_dims 4,3,416,416
+mv_compile --model ~/sample-5/yoloV2Tiny20.caffemodel --install_folder mvdeploy_batch4 --input_dims 4,3,416,416
 cd mvdeploy_batch4
 cp ../mvobjdetect.cpp ../visualize.cpp ../visualize.h ../CMakeLists.txt .
 mkdir mv_build4
