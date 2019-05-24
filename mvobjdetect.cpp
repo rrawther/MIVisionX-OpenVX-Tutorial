@@ -202,7 +202,8 @@ int main(int argc, const char ** argv)
         vx_image inp_img;
         float time_in_millisec;
         int do_preprocess = 0;
-        float scale_factor = 1.0f/255;
+        float scale_factor = 1.0f/255;      // required for YOLO v2 (since it is trained on normalized images)
+        float add_factor = 0.0f;            // required for YOLO v2 (since it is trained on normalized images)
 
         // get input and output dimensions from inoutConfig
         std::stringstream inout_dims(inoutConfig);
@@ -278,6 +279,7 @@ int main(int argc, const char ** argv)
             }
             SetPreProcessCallback(&preprocess_addnodes_callback_fn, inp_dec_str.c_str(), scale_factor, 0.0);
             do_preprocess = 1;
+            if (!useMultiFrameInput) capture_till_eof = 1;   // if frames parameter is not specified, capture till eof
             printf("OK:: SetPreProcessCallback \n");
         } 
 
@@ -324,9 +326,9 @@ int main(int argc, const char ** argv)
                         float * dstG = dstR + (istride[2] >> 2);
                         float * dstB = dstG + (istride[2] >> 2);
                         for(vx_size x = 0; x < inp_dims[0]; x++, src += 3) {
-                            *dstR++ = src[2]*scale_factor;
-                            *dstG++ = src[1]*scale_factor;
-                            *dstB++ = src[0]*scale_factor;
+                            *dstR++ = src[2]*scale_factor + add_factor;
+                            *dstG++ = src[1]*scale_factor + add_factor;
+                            *dstB++ = src[0]*scale_factor + add_factor;
                         }
                     }
                 }
@@ -417,7 +419,7 @@ int main(int argc, const char ** argv)
             if (argmaxOutput) {
                 mv_postproc_argmax(outMem, (void *)cl, topK, out_dims[3], out_dims[2], out_dims[1], out_dims[0]);
                 for (int l=0; l<topK; l++) {
-                    printf("Argmax topK: %d classs:%d conf: %f\n", l, cl[l].index, cl[l].probability);
+                    printf("Argmax topK: %d class:%d conf: %7.5f\n", l, cl[l].index, cl[l].probability);
                 }
             }
             if (bVisualize && pVisualize) {
