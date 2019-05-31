@@ -45,9 +45,10 @@ inline int64_t clockFrequency()
     return std::chrono::high_resolution_clock::period::den / std::chrono::high_resolution_clock::period::num;
 }
 
-static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session inf_session, vx_tensor outp_tensor, const char *inp_string, float a, float b)
+// implementation of preprocess_addnodes_callback_fn
+static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session inf_session, vx_tensor outp_tensor, mv_preprocess_callback_args *preproc_args)
 {
-    if (inf_session) {
+    if (inf_session && preproc_args) {
         mivid_handle hdl = (mivid_handle) inf_session;
         vx_context context = hdl->context;
         vx_graph graph   = hdl->graph;
@@ -63,9 +64,9 @@ static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session in
         }
         ERROR_CHECK_STATUS(vxQueryTensor(outp_tensor, VX_TENSOR_DIMS, tens_dims, sizeof(tens_dims)));    
         vx_image dec_image = vxCreateImage(context, tens_dims[0], tens_dims[1]*tens_dims[3], VX_DF_IMAGE_RGB);   // todo:: add support for batch (height is tens_dims[1]*tens_dims[3])
-        vx_node node_decoder = amdMediaDecoderNode(graph, inp_string, dec_image, (vx_array)nullptr);
+        vx_node node_decoder = amdMediaDecoderNode(graph, preproc_args->inp_string_decoder, dec_image, (vx_array)nullptr, preproc_args->loop_decode);
         ERROR_CHECK_OBJECT(node_decoder);
-        vx_node node_img_tensor = vxConvertImageToTensorNode(graph, dec_image, outp_tensor, a, b, 0);
+        vx_node node_img_tensor = vxConvertImageToTensorNode(graph, dec_image, outp_tensor, preproc_args->preproc_a, preproc_args->preproc_b, 0);
         ERROR_CHECK_OBJECT(node_img_tensor);
         ERROR_CHECK_STATUS(vxReleaseNode(&node_decoder));
         ERROR_CHECK_STATUS(vxReleaseNode(&node_img_tensor));
@@ -112,7 +113,7 @@ int main(int argc, const char ** argv)
     int bPeformanceRun = 0, numIterations = 0, bVisualize = 0, bVaapi = 0;
     int detectBB = 0;
     int  argmaxOutput = 0, topK = 1;
-    int useMultiFrameInput = 0, capture_till_eof = 0, start_frame=0, end_frame = 1;
+    int useMultiFrameInput = 0, capture_till_eof = 0, start_frame=0, end_frame = 1, loop_decode = 0;
     int numClasses = 0;
     float conf_th = 0.0, nms_th=0.0;
     Visualize *pVisualize = nullptr;
@@ -132,6 +133,9 @@ int main(int argc, const char ** argv)
             useMultiFrameInput = 1;
             if (!strcmp(argv[arg], "eof")) {
                 capture_till_eof = 1;
+            }else if (!strcmp(argv[arg], "loop")) {
+                capture_till_eof = 1;
+                loop_decode = 1;
             }else {
                 end_frame = atoi(argv[arg]);
             }
@@ -258,12 +262,18 @@ int main(int argc, const char ** argv)
         out_dims[2] = std::get<1>(output_dims[0]);
         out_dims[1] = std::get<2>(output_dims[0]);
         out_dims[0] = std::get<3>(output_dims[0]);
+        mv_preprocess_callback_args preproc_args;
+        preproc_args.loop_decode = loop_decode;
+        preproc_args.preproc_a = scale_factor;
+        preproc_args.preproc_b = 0.0;
 
-        // for video input, set preprocessing callback for adding video decoder node
+        std::string inp_dec_str;    // needed for amd_video_decoder
+     // for video input, set preprocessing callback for adding video decoder node
         if (inp_dims[3] == 1 && inp_dims[2] == 3 && inpFileName.size() > 4 && ((inpFileName.substr(inpFileName.size()-4, 4) == ".mp4")||(inpFileName.substr(inpFileName.size()-4, 4) == ".m4v")))
         {
-            std::string inp_dec_str = bVaapi? ("1," + inpFileName + ":1") : ("1," + inpFileName + ":0");
-            SetPreProcessCallback(&preprocess_addnodes_callback_fn, inp_dec_str.c_str(), scale_factor, 0.0);
+            inp_dec_str = bVaapi? ("1," + inpFileName + ":1") : ("1," + inpFileName + ":0");
+            preproc_args.inp_string_decoder = inp_dec_str.c_str();
+            SetPreProcessCallback(&preprocess_addnodes_callback_fn, &preproc_args);
             do_preprocess = 1;
             if (!useMultiFrameInput) capture_till_eof = 1;   // if frames parameter is not specified, capture till eof
             printf("OK:: SetPreProcessCallback \n");
@@ -271,13 +281,13 @@ int main(int argc, const char ** argv)
         else if (inp_dims[3] > 1 && inp_dims[2] == 3 && (((inpFileName.size() > 6) && (inpFileName.substr(inpFileName.size()-6, 4) == ".mp4")
                                                         ||(inpFileName.substr(inpFileName.size()-6, 4) == ".m4v")) || (inpFileName.substr(inpFileName.size()-4, 4) == ".txt")))
         {
-            std::string inp_dec_str;
             if (inpFileName.substr(inpFileName.size()-4, 4) != ".txt") {
                 inp_dec_str = std::to_string(inp_dims[3]) + "," + inpFileName;
             } else {
                 inp_dec_str = std::to_string(inp_dims[3]) + "," + inpFileName;
             }
-            SetPreProcessCallback(&preprocess_addnodes_callback_fn, inp_dec_str.c_str(), scale_factor, 0.0);
+            preproc_args.inp_string_decoder = inp_dec_str.c_str();
+            SetPreProcessCallback(&preprocess_addnodes_callback_fn, &preproc_args);
             do_preprocess = 1;
             if (!useMultiFrameInput) capture_till_eof = 1;   // if frames parameter is not specified, capture till eof
             printf("OK:: SetPreProcessCallback \n");
