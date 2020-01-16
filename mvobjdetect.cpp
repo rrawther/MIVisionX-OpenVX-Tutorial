@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "mv_extras_postproc.h"
 #include "visualize.h"
 #include <iterator>
+#define USE_OPENCL_FOR_DECODER_OUTPUT   0
 
 // hard coded biases for yolo_v2 and yolo_v3 (x,y) for 5 bounding boxes
 const float BB_biases[10]             = {1.08,1.19,  3.42,4.41,  6.63,11.38,  9.42,5.11,  16.62,10.52};     // bounding box biases
@@ -62,10 +63,25 @@ static vx_status MIVID_CALLBACK preprocess_addnodes_callback_fn(mivid_session in
             printf("preprocess_addnodes_callback_fn:: outp_tensor num_dims=%ld (must be 4)\n", num_dims);
             return VX_ERROR_INVALID_DIMENSION;
         }
-        ERROR_CHECK_STATUS(vxQueryTensor(outp_tensor, VX_TENSOR_DIMS, tens_dims, sizeof(tens_dims)));    
+        ERROR_CHECK_STATUS(vxQueryTensor(outp_tensor, VX_TENSOR_DIMS, tens_dims, sizeof(tens_dims)));
+#if !USE_OPENCL_FOR_DECODER_OUTPUT        
         vx_image dec_image = vxCreateImage(context, tens_dims[0], tens_dims[1]*tens_dims[3], VX_DF_IMAGE_RGB);   // todo:: add support for batch (height is tens_dims[1]*tens_dims[3])
         vx_node node_decoder = amdMediaDecoderNode(graph, preproc_args->inp_string_decoder, dec_image, (vx_array)nullptr, preproc_args->loop_decode);
         ERROR_CHECK_OBJECT(node_decoder);
+#else
+        vx_imagepatch_addressing_t addr_in = { 0 };
+        //void *ptr[1] = { nullptr };
+        addr_in.dim_x = tens_dims[0];
+        addr_in.dim_y = tens_dims[1];
+        addr_in.stride_x = tens_dims[3];
+        addr_in.stride_y = tens_dims[0] * tens_dims[3];
+        if (addr_in.stride_y == 0) addr_in.stride_y = addr_in.stride_x * addr_in.dim_x;
+        //vx_image dec_image = vxCreateImageFromHandle(context, VX_DF_IMAGE_RGB, &addr_in, ptr, VX_MEMORY_TYPE_OPENCL);
+        vx_image dec_image = vxCreateVirtualImage(graph, addr_in.dim_x, addr_in.dim_y, VX_DF_IMAGE_RGB);
+        ERROR_CHECK_OBJECT(dec_image);
+        vx_node node_decoder = amdMediaDecoderNode(graph, preproc_args->inp_string_decoder, dec_image, (vx_array)nullptr, preproc_args->loop_decode, true);
+        ERROR_CHECK_OBJECT(node_decoder);
+#endif        
         vx_node node_img_tensor = vxConvertImageToTensorNode(graph, dec_image, outp_tensor, preproc_args->preproc_a, preproc_args->preproc_b, 0);
         ERROR_CHECK_OBJECT(node_img_tensor);
         ERROR_CHECK_STATUS(vxReleaseNode(&node_decoder));
